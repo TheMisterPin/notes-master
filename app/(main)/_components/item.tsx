@@ -32,7 +32,6 @@ interface ItemProps {
 }
 
 function Item({
-
   id,
   label,
   onClick,
@@ -163,5 +162,4 @@ Item.Skeleton = function ItemSkeleton({ level }: { level?: number }) {
     </div>
   )
 }
-
 export default Item

@@ -4,10 +4,12 @@ import type { Metadata } from 'next'
 
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import { ConvexClientProvider } from '@/components/providers/convex-provider'
-// import { ModalProvider } from "@/components/providers/modal-provider";
+import { ModalProvider } from "@/components/providers/modal-provider"
+
 // import { EdgeStoreProvider } from "@/lib/edgestore";
 
 import './globals.css'
+
 
 const inter = Indie_Flower({
   subsets: ['latin'],
@@ -47,7 +49,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             storageKey='Notes Hub-theme-2'
           >
             <Toaster position='bottom-center' />
-            {/* <ModalProvider /> */}
+       
+        <ModalProvider /> 
             {children}
           </ThemeProvider>
           {/* </EdgeStoreProvider> */}
