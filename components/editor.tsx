@@ -41,7 +41,7 @@ const Editor = ({
         theme={resolvedTheme === "dark" ? "dark" : "light"}
         editable={editable}
         onChange={() => {
-          onChange(JSON.stringify(editor.topLevelBlocks, null, 2));
+          onChange(JSON.stringify(editor.getBlock, null, 2));
         }}
       />
     </div>
