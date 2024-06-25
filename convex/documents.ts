@@ -94,7 +94,6 @@ export const create = mutation({
       isArchived: false,
       isPublished: false
     })
-
     return document
   }
 })
@@ -281,6 +280,46 @@ export const update = mutation({
       throw new Error('Unauthorized')
     }
 
+    const document = await ctx.db.patch(args.id, {
+      ...rest
+    })
+
+    return document
+  }
+})
+export const changeParent = mutation({
+  args: {
+    id: v.id('documents'),
+    parentDocument: v.id('documents'),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity()
+
+    if (!identity) {
+      throw new Error('Unauthenticated')
+    }
+
+    const userId = identity.subject
+
+    const { id, ...rest } = args
+
+    const existingDocument = await ctx.db.get(args.id)
+
+    if (!existingDocument) {
+      throw new Error('Not found')
+    }
+
+    if (existingDocument.userId !== userId) {
+      throw new Error('Unauthorized')
+    }
+if (!args.parentDocument) {
+      const removeParent = await ctx.db.patch(args.id, {
+        ...rest,
+        parentDocument: undefined
+})
+        return removeParent
+      
+    }
     const document = await ctx.db.patch(args.id, {
       ...rest
     })
