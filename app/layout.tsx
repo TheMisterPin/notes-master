@@ -16,7 +16,7 @@ const inter = Indie_Flower({
 })
 
 export const metadata: Metadata = {
-  title: 'Note-Hub',
+  title: 'Notes-Master',
   description: 'Boost your productivity',
   icons: {
     icon: [
