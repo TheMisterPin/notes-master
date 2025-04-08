@@ -9,15 +9,16 @@ import { Doc, Id } from '@/convex/_generated/dataModel'
 import { api } from '@/convex/_generated/api'
 import { cn } from '@/lib/utils'
 
-import  Item  from './item'
+import Item from './item'
 
 interface DocumentListProps {
   parentDocumentId?: Id<'documents'>
   level?: number
   data?: Doc<'documents'>[]
+  onDrop?: (id: string, parentDocument: string) => void
 }
 
-export const DocumentList = ({ parentDocumentId, level = 0 }: DocumentListProps) => {
+const DocumentList = ({ parentDocumentId, level = 0, onDrop }: DocumentListProps) => {
   const params = useParams()
   const router = useRouter()
   const [expanded, setExpanded] = useState<Record<string, boolean>>({})
@@ -77,10 +78,13 @@ export const DocumentList = ({ parentDocumentId, level = 0 }: DocumentListProps)
             level={level}
             onExpand={() => onExpand(document._id)}
             expanded={expanded[document._id]}
+            onDrop={onDrop} // Pass the onDrop handler
           />
-          {expanded[document._id] && <DocumentList parentDocumentId={document._id} level={level + 1} />}
+          {expanded[document._id] && <DocumentList parentDocumentId={document._id} level={level + 1} onDrop={onDrop} />}
         </div>
       ))}
     </>
   )
 }
+
+export default DocumentList

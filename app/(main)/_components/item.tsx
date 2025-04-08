@@ -5,7 +5,7 @@ import { useMutation } from 'convex/react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useUser } from '@clerk/clerk-react'
-
+import { useDrag, useDrop } from 'react-dnd'
 import { Id } from '@/convex/_generated/dataModel'
 import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -17,6 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu'
+import { useRef } from 'react'
 
 interface ItemProps {
   id?: Id<'documents'>
@@ -29,6 +30,7 @@ interface ItemProps {
   label: string
   onClick?: () => void
   icon: LucideIcon
+  onDrop?: (id: string, parentDocument: string) => void
 }
 
 function Item({
@@ -41,7 +43,8 @@ function Item({
   isSearch,
   level = 0,
   onExpand,
-  expanded
+  expanded,
+  onDrop
 }: ItemProps) {
   const { user } = useUser()
   const router = useRouter()
@@ -84,12 +87,35 @@ function Item({
 
   const ChevronIcon = expanded ? ChevronDown : ChevronRight
 
+  const ref = useRef(null)
+
+  const [, drop] = useDrop({
+    accept: 'DOCUMENT',
+    hover(item: { id: string }) {
+      if (onDrop && item.id !== id) {
+        onDrop(item.id, id)
+      }
+    }
+  })
+
+  const [{ isDragging }, drag] = useDrag({
+    type: 'DOCUMENT',
+    item: { id },
+    collect: monitor => ({
+      isDragging: !!monitor.isDragging()
+    })
+  })
+
+  drag(drop(ref))
+
   return (
     <div
+      ref={ref}
       onClick={onClick}
       role='button'
       style={{
-        paddingLeft: level ? `${level * 12 + 12}px` : '12px'
+        paddingLeft: level ? `${level * 12 + 12}px` : '12px',
+        opacity: isDragging ? 0.5 : 1
       }}
       className={cn(
         'group min-h-[27px] text-sm py-1 pr-3 w-full hover:bg-primary/5 flex items-center text-muted-foreground font-medium',

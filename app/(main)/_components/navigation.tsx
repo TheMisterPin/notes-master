@@ -1,32 +1,36 @@
 import { ChevronsLeft, MenuIcon, PlusCircle, Search, Settings, Plus, Trash } from 'lucide-react'
 import React, { useRef, ElementRef, useState, useEffect } from 'react'
 import { useMediaQuery } from 'usehooks-ts'
-import { useParams, usePathname } from 'next/navigation'
+import { useParams, usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import UserItem from './user-item'
 import { useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import Item from './item'
 import { toast } from 'sonner'
-import { DocumentList } from './document-list'
+import DocumentTree from './document-list'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import TrashBox from './trash-box'
 import { useSearch } from '@/hooks/use-search'
 import { useSettings } from '@/hooks/use-settings'
 import Navbar from './navbar'
+import { Id } from '@/convex/_generated/dataModel'
 
 function Navigation() {
   const pathname = usePathname()
   const settings = useSettings()
   const params = useParams()
+  const router = useRouter()
   const isMobile = useMediaQuery('(max-width: 768px)')
   const create = useMutation(api.documents.create)
+  const changeParent = useMutation(api.documents.changeParent)
   const isResizingRef = useRef(false)
   const sidebarRef = useRef<ElementRef<'aside'>>(null)
   const navbarRef = useRef<ElementRef<'div'>>(null)
   const [isResetting, setIsResetting] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const search = useSearch()
+
   useEffect(() => {
     if (isMobile) {
       collapse()
@@ -93,6 +97,7 @@ function Navigation() {
       setTimeout(() => setIsResetting(false), 300)
     }
   }
+
   const handleCreate = () => {
     const promise = create({
       title: 'Untitled'
@@ -101,6 +106,19 @@ function Navigation() {
       loading: 'Creating document...',
       success: 'Document created!',
       error: 'Failed to create document'
+    })
+  }
+
+  const onDrop = (id: Id<'documents'>, parentDocument: Id<'documents'>) => {
+    const promise = changeParent({
+      id,
+      parentDocument
+    }).then(() => router.push('/documents'))
+
+    toast.promise(promise, {
+      loading: 'Moving document...',
+      success: 'Document moved successfully!',
+      error: 'Failed to move document.'
     })
   }
 
@@ -131,7 +149,7 @@ function Navigation() {
         <Item label='Setting' onClick={settings.onOpen} icon={Settings} />
         <Item onClick={handleCreate} label='New page' icon={PlusCircle} />
         <div className='mt4'>
-          <DocumentList />
+          <DocumentTree onDrop={onDrop} /> {/* Pass the onDrop handler */}
           <Item onClick={handleCreate} label='Add a note' icon={Plus} />
           <Popover>
             <PopoverTrigger>
